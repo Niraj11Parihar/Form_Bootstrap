@@ -1,16 +1,17 @@
 import React, { useEffect, useState } from "react";
+// import Navbar from "./navbar";
 
 const Form = () => {
   const [input, setInput] = useState({});
   const [list, setList] = useState([]);
+  const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 2;
-
+  const itemsPerPage = 3;
 
   const LastItemOfIndex = currentPage * itemsPerPage;
   const FirstItemOfIndex = LastItemOfIndex - itemsPerPage;
-  const currentItems = list.slice(FirstItemOfIndex, LastItemOfIndex)
-  const totalPages = Math.ceil(list.length/ itemsPerPage);
+  const currentItems = list.slice(FirstItemOfIndex, LastItemOfIndex);
+  const totalPages = Math.ceil(list.length / itemsPerPage);
 
   function handleInput(e) {
     let { name, value } = e.target;
@@ -40,6 +41,8 @@ const Form = () => {
 
   return (
     <>
+      {/* <Navbar/> */}
+
       <div className="row border p-3 border-dark-subtle">
         <h2 className="text-success">Registration Form</h2>
         <form method="post" className="w-100" onSubmit={handleSubmition}>
@@ -106,6 +109,10 @@ const Form = () => {
 
       {/* user data  */}
 
+      <form className="mt-3 p-2">
+        <input type="text" className="w-100 shadow-sm p-2 " placeholder="Search User" onChange={(e) => setSearch(e.target.value)} />
+      </form>
+
       <table className="table table-striped table-bordered mt-5">
         <thead className="thead-dark">
           <tr>
@@ -117,22 +124,28 @@ const Form = () => {
         </thead>
         <tbody>
           {currentItems.length > 0 ? (
-            currentItems.map((val, i) => (
-              <tr key={i}>
-                <td>{val.name}</td>
-                <td>{val.email}</td>
-                <td>{val.password}</td>
-                <td>{val.message}</td>
-                <td>
-                  <button
-                    onClick={() => deleteData(i)}
-                    className="btn btn-danger my-3"
-                  >
-                    Delete
-                  </button>
-                </td>
-              </tr>
-            ))
+            currentItems
+              .filter((item) => {
+                return search.toLocaleLowerCase() === ""
+                  ? item
+                  : item.name.toLocaleLowerCase().includes(search);
+              })
+              .map((val, i) => (
+                <tr key={i}>
+                  <td>{val.name}</td>
+                  <td>{val.email}</td>
+                  <td>{val.password}</td>
+                  <td>{val.message}</td>
+                  <td>
+                    <button
+                      onClick={() => deleteData(i)}
+                      className="btn btn-danger my-3"
+                    >
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              ))
           ) : (
             <tr>
               <td colSpan="4" className="text-center">
@@ -141,18 +154,16 @@ const Form = () => {
             </tr>
           )}
           <tr key="" className="text-center">
-            <td >
-                  {
-                              [...Array(totalPages)].map((_, index) => (
-                                <button
-                                  key={index}
-                                  onClick={() => setCurrentPage(index + 1)}
-                                  className={currentPage == index + 1 ? 'active' : ''}
-                                >
-                                  {index + 1}
-                                </button>
-                              ))
-                  }
+            <td>
+              {[...Array(totalPages)].map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => setCurrentPage(index + 1)}
+                  className={currentPage == index + 1 ? "active" : ""}
+                >
+                  {index + 1}
+                </button>
+              ))}
             </td>
           </tr>
         </tbody>
