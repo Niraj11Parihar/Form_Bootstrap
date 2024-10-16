@@ -5,14 +5,19 @@ const Form = () => {
   const [input, setInput] = useState({});
   const [list, setList] = useState([]);
   const [search, setSearch] = useState("");
+  const [sort, setSort] = useState("ASC");
   const [currentPage, setCurrentPage] = useState(1);
+  
+  
+  //pagination
   const itemsPerPage = 3;
-
   const LastItemOfIndex = currentPage * itemsPerPage;
   const FirstItemOfIndex = LastItemOfIndex - itemsPerPage;
   const currentItems = list.slice(FirstItemOfIndex, LastItemOfIndex);
   const totalPages = Math.ceil(list.length / itemsPerPage);
 
+
+  //individual input
   function handleInput(e) {
     let { name, value } = e.target;
     setInput({ ...input, [name]: value });
@@ -23,6 +28,7 @@ const Form = () => {
     setList(data);
   }, []);
 
+  //single obj or user input
   function handleSubmition(e) {
     e.preventDefault();
 
@@ -37,6 +43,26 @@ const Form = () => {
     const newList = list.filter((_, i) => i !== index);
     setList(newList);
     localStorage.setItem("data", JSON.stringify(newList));
+  }
+
+  //Sorting 
+  function Sorting(col){
+      if(sort === 'ASC'){
+            const sorted = [...list].sort((a, b)=>
+                a[col].toLowerCase() > b[col].toUpperCase() ? 1 : -1
+            );
+
+            setList(sorted);
+            setSort('DSC');
+      }
+      if(sort === 'DSC'){
+        const sorted = [...list].sort((a, b)=>
+          a[col].toLowerCase() < b[col].toLowerCase() ? 1 : -1
+        );
+
+        setList(sorted);
+        setSort('ASC');
+      }
   }
 
   return (
@@ -116,21 +142,23 @@ const Form = () => {
       <table className="table table-striped table-bordered mt-5">
         <thead className="thead-dark">
           <tr>
-            <th>Name</th>
-            <th>Email</th>
-            <th>Pass</th>
-            <th>Message</th>
+            <th onClick={()=>Sorting("name")}>Name</th>
+            <th onClick={()=>Sorting("email")}>Email</th>
+            <th onClick={()=>Sorting("password")}>Pass</th>
+            <th onClick={()=>Sorting("message")}>Message</th>
           </tr>
         </thead>
         <tbody>
           {currentItems.length > 0 ? (
-            currentItems
-              .filter((item) => {
-                return search.toLocaleLowerCase() === ""
-                  ? item
-                  : item.name.toLocaleLowerCase().includes(search);
-              })
-              .map((val, i) => (
+            currentItems.filter((item) => {
+              if (search.toLocaleLowerCase() === "") return true;
+              return (
+                item.name.toLocaleLowerCase().includes(search.toLocaleLowerCase()) ||
+                item.email.toLocaleLowerCase().includes(search.toLocaleLowerCase()) ||
+                item.password.toLocaleLowerCase().includes(search.toLocaleLowerCase()) ||
+                item.message.toLocaleLowerCase().includes(search.toLocaleLowerCase())
+              );
+            }).map((val, i) => (
                 <tr key={i}>
                   <td>{val.name}</td>
                   <td>{val.email}</td>
